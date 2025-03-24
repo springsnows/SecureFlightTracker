@@ -9,7 +9,7 @@ from datetime import datetime
 
 # set airport code 
 # EGLL for Heathrow
-AIRPORT_ICAO = "EGLL"
+AIRPORT_ICAO = "EDDF"
 
 # setting 1 hour range for requests
 end_time = int(time.time())
