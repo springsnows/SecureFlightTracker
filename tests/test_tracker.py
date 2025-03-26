@@ -24,7 +24,7 @@ def flight_details(ICAO24):
     else:
         return {"Error": f"Request failed status code {response.status_code}"}
 
-icao24_code = "71c227"
+icao24_code = "3c0ca7"
 
 # info = flight_details(icao24_code)
 # print(info)
@@ -32,5 +32,5 @@ icao24_code = "71c227"
 while True:
     info = flight_details(icao24_code)
     print(info)
-    print("Refreshing details every 2 minutes")
-    time.sleep(120)
+    print("Refreshing details every 1 minutes")
+    time.sleep(60)

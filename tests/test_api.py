@@ -8,7 +8,7 @@ from datetime import datetime
 # can't request this much data
 
 # set airport code 
-# EGLL for Heathrow
+# EDDF for Frankfurt
 AIRPORT_ICAO = "EDDF"
 
 # setting 1 hour range for requests
