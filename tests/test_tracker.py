@@ -24,7 +24,7 @@ def flight_details(ICAO24):
     else:
         return {"Error": f"Request failed status code {response.status_code}"}
 
-icao24_code = "3c0ca7"
+icao24_code = "5001e3"
 
 # info = flight_details(icao24_code)
 # print(info)

@@ -11,7 +11,7 @@ from datetime import datetime
 # EDDF for Frankfurt
 AIRPORT_ICAO = "EDDF"
 
-# setting 1 hour range for requests
+# setting time range for requests
 end_time = int(time.time())
 begin_time = end_time - 13800
 
