@@ -1,2 +1,4 @@
 requests
 time
+pyttsx3
+cryptography
