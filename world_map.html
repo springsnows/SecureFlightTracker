@@ -25,7 +25,7 @@
             <meta name="viewport" content="width=device-width,
                 initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
             <style>
-                #map_10041a9e98b7d5b62936dd1636112afc {
+                #map_9864d88ac00f4ac908c9b04583a24953 {
                     position: relative;
                     width: 100.0%;
                     height: 100.0%;
@@ -39,16 +39,16 @@
 <body>
     
     
-            <div class="folium-map" id="map_10041a9e98b7d5b62936dd1636112afc" ></div>
+            <div class="folium-map" id="map_9864d88ac00f4ac908c9b04583a24953" ></div>
         
 </body>
 <script>
     
     
-            var map_10041a9e98b7d5b62936dd1636112afc = L.map(
-                "map_10041a9e98b7d5b62936dd1636112afc",
+            var map_9864d88ac00f4ac908c9b04583a24953 = L.map(
+                "map_9864d88ac00f4ac908c9b04583a24953",
                 {
-                    center: [20.0, 20.0],
+                    center: [50.0, 10.0],
                     crs: L.CRS.EPSG3857,
                     ...{
   "zoom": 5,
@@ -63,7 +63,7 @@
 
         
     
-            var tile_layer_d6da318f6f05b8f8be9cb49ba26cc5a9 = L.tileLayer(
+            var tile_layer_922c419f44d4300b5fd8353910d922c0 = L.tileLayer(
                 "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
                 {
   "minZoom": 0,
@@ -80,17 +80,17 @@
             );
         
     
-            tile_layer_d6da318f6f05b8f8be9cb49ba26cc5a9.addTo(map_10041a9e98b7d5b62936dd1636112afc);
+            tile_layer_922c419f44d4300b5fd8353910d922c0.addTo(map_9864d88ac00f4ac908c9b04583a24953);
         
     
-            var marker_3015162877c510bdf7370a7cfffc9387 = L.marker(
-                [20.0, 20.0],
+            var marker_1166200fc1b4459efb19654400897a0a = L.marker(
+                [50.033333, 8.570556],
                 {
 }
-            ).addTo(map_10041a9e98b7d5b62936dd1636112afc);
+            ).addTo(map_9864d88ac00f4ac908c9b04583a24953);
         
     
-            var icon_b04eec5c8b4a8d10d448afd688aac7e5 = L.AwesomeMarkers.icon(
+            var icon_8e058c9467dad9dce594540e963dbd1a = L.AwesomeMarkers.icon(
                 {
   "markerColor": "blue",
   "iconColor": "white",
@@ -101,24 +101,68 @@
             );
         
     
-        var popup_295ed47c43032e6c18f50fb9a3eacdeb = L.popup({
+        var popup_6a29ff8f550db692f0dc2a79ac04ee7e = L.popup({
   "maxWidth": "100%",
 });
 
         
             
-                var html_130db8fe2aba145ec869cd140208ac18 = $(`<div id="html_130db8fe2aba145ec869cd140208ac18" style="width: 100.0%; height: 100.0%;">Test Plane</div>`)[0];
-                popup_295ed47c43032e6c18f50fb9a3eacdeb.setContent(html_130db8fe2aba145ec869cd140208ac18);
+                var html_b0f367e70a269c60178537547bdf62d2 = $(`<div id="html_b0f367e70a269c60178537547bdf62d2" style="width: 100.0%; height: 100.0%;">Frankfurt Airport</div>`)[0];
+                popup_6a29ff8f550db692f0dc2a79ac04ee7e.setContent(html_b0f367e70a269c60178537547bdf62d2);
             
         
 
-        marker_3015162877c510bdf7370a7cfffc9387.bindPopup(popup_295ed47c43032e6c18f50fb9a3eacdeb)
+        marker_1166200fc1b4459efb19654400897a0a.bindPopup(popup_6a29ff8f550db692f0dc2a79ac04ee7e)
         ;
 
         
     
     
-                marker_3015162877c510bdf7370a7cfffc9387.setIcon(icon_b04eec5c8b4a8d10d448afd688aac7e5);
+                marker_1166200fc1b4459efb19654400897a0a.setIcon(icon_8e058c9467dad9dce594540e963dbd1a);
             
+    
+            var marker_d2f7b1c325c351b10c3c2c54bfc10a0f = L.marker(
+                [48.782, 11.5294],
+                {
+}
+            ).addTo(map_9864d88ac00f4ac908c9b04583a24953);
+        
+    
+            var icon_22fb11e8a0a44503e6b6dfe46b3468fe = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plane",
+  "prefix": "glyphicon",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_5cd9c146b993626819bba7b8a16c2204 = L.popup({
+  "maxWidth": "100%",
+});
+
+        
+            
+                var html_800eb5da1496b8ecfbe83abc56a2b0f0 = $(`<div id="html_800eb5da1496b8ecfbe83abc56a2b0f0" style="width: 100.0%; height: 100.0%;">Test Plane</div>`)[0];
+                popup_5cd9c146b993626819bba7b8a16c2204.setContent(html_800eb5da1496b8ecfbe83abc56a2b0f0);
+            
+        
+
+        marker_d2f7b1c325c351b10c3c2c54bfc10a0f.bindPopup(popup_5cd9c146b993626819bba7b8a16c2204)
+        ;
+
+        
+    
+    
+                marker_d2f7b1c325c351b10c3c2c54bfc10a0f.setIcon(icon_22fb11e8a0a44503e6b6dfe46b3468fe);
+            
+    
+            var poly_line_e580fe6609932b597c40a976ca736ea0 = L.polyline(
+                [[48.782, 11.5294], [50.033333, 8.570556]],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2}
+            ).addTo(map_9864d88ac00f4ac908c9b04583a24953);
+        
 </script>
 </html>
