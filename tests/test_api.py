@@ -20,6 +20,7 @@ departures = []
 arrivals = []
 #Opensky API
 dep_url = f"https://opensky-network.org/api/flights/departure?airport={AIRPORT_ICAO}&begin={begin_time}&end={end_time}"
+print(dep_url)
 arrival_url = f"https://opensky-network.org/api/flights/arrival?airport={AIRPORT_ICAO}&begin={begin_time}&end={end_time}"
 
 dep_response = requests.get(dep_url)
