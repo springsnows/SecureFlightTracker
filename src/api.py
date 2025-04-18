@@ -12,7 +12,7 @@ from datetime import datetime
 AIRPORT_ICAO = "EDDF"
 
 # setting time range for requests
-time_range = 13800
+TIME_RANGE = 13800
 
 
 departures = []
@@ -24,7 +24,8 @@ arrivals = []
 
 #function to fetch all flights from selected airport
 def fetch_flights(AIRPORT_ICAO,TIME_RANGE):
-
+    global departures, arrivals
+    
     #set time range
     end_time = int(time.time())
     begin_time = end_time - TIME_RANGE
@@ -57,8 +58,14 @@ def fetch_flights(AIRPORT_ICAO,TIME_RANGE):
                 print(f"Flight {flight['icao24']} from {flight['estDepartureAirport']}, Arrival: {lastTime}")
         else:
             print("Error fetching arrivals:", arrival_response.status_code)
+    
+    return departures + arrivals
 
 # def log_flight_info(flight):
 #     with open(LOG_FILE, "a")
 
 # def select_and_log_flight(AIRPORT_ICAO):
+            
+# Auto-run only when this file is run directly
+if __name__ == "__main__":
+    fetch_flights(AIRPORT_ICAO, TIME_RANGE)

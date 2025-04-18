@@ -27,9 +27,9 @@ def plane_marker(map, latitude, longitude, popup_text):
     #create line between plane and airport
     folium.PolyLine(
     locations=[point1, point2],
-    weight=2,  # Line thickness
-    color="red",  # Line color
-    opacity=0.8  # Line transparency
+    weight=2,  # line thickness
+    color="red",  # line color
+    opacity=0.8  # line transparency
     ).add_to(map)
 
     return map

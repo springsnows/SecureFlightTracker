@@ -31,10 +31,10 @@ def flight_details(ICAO24):
     else:
         return {"Error": f"Request failed status code {response.status_code}"}
 
-icao24_code = "3c6637"
+icao24_code = "44ce79"
 
-# info = flight_details(icao24_code)
-# print(info)
+info = flight_details(icao24_code)
+print(info)
 
 def save_to_json(filename, data):
     os.makedirs(os.path.dirname(filename), exist_ok=True)

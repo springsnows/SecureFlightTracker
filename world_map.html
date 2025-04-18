@@ -33,6 +33,37 @@
                     top: 0.0%;
                 }
                 .leaflet-container { font-size: 1rem; }
+
+                /* overlay box style */
+                #controls-overlay {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    width: 250px;
+                    max-height: 80%;
+                    background: rgba(255, 255, 255, 0.8);
+                    padding: 10px;
+                    border-radius: 5px;
+                    z-index: 1000; /* ensure it's above the map */
+                    overflow-y: auto;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                }
+                #flight-list {
+                    margin-top: 10px;
+                    list-style: none;
+                    padding: 0;
+                }
+                #flight-list li {
+                    margin-bottom: 5px;
+                    padding: 5px;
+                    background: rgba(240, 240, 240, 0.9);
+                    border-radius: 3px;
+                    display: flex;
+                    align-items: center;
+                }
+                #flight-list input[type="checkbox"] {
+                    margin-right: 8px;
+                }
             </style>
         
 </head>
@@ -41,6 +72,28 @@
     
             <div class="folium-map" id="map_78596262bc831acf7a76006709329e65" ></div>
         
+    <!-- overlay box -->
+    <div id="controls-overlay">
+        <h5>Flight Tracker</h5>
+        <div>
+            <label for="airport-input">Airport ICAO:</label>
+            <input type="text" id="airport-input" placeholder="e.g., EDDF" size="10">
+            <button id="search-button">Search</button>
+        </div>
+        <div id="search-results" style="margin-top: 10px; display: none;">
+            <h6>Available Flights:</h6>
+            <div id="flights-container" style="max-height: 200px; overflow-y: auto;"></div>
+        </div>
+        <div style="margin-top: 10px;">
+            <label for="track-input">Track Flight (ICAO24):</label>
+            <input type="text" id="track-input" placeholder="e.g., 3c6443" size="10">
+            <button id="track-button">Track</button>
+        </div>
+        <div id="tracked-flights" style="margin-top: 10px;">
+            <h6>Tracked Flight:</h6>
+            <div id="current-flight"></div>
+        </div>
+    </div>
 </body>
 <script>
     
@@ -120,80 +173,189 @@
     
                 marker_8e76116800494a56c5347c581e8c42d0.setIcon(icon_96c0c961feae43ec46d368623a268bec);
             
+    // Store flight markers and polylines
+    let flightMarker = null;
+    let flightPolyline = null;
+    let currentIcao24 = null;
+    let firstLoad = true;  // Flag to track if this is the first load for a flight
     
-            var marker_c14916f302e215ad27d5b0ec9524fe62 = L.marker(
-                [37.2791, 26.9819],
-                {
-}
-            ).addTo(map_78596262bc831acf7a76006709329e65);
-        
+    // Create plane icon
+    const planeIcon = L.AwesomeMarkers.icon({
+        icon: 'plane',
+        prefix: 'glyphicon',
+        markerColor: 'blue',
+        iconColor: 'white'
+    });
     
-            var icon_8201bb4d6f9bfcdebfd5ef682a509ce2 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "plane",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
+    // Save map position on movement
+    map_78596262bc831acf7a76006709329e65.on('moveend', function() {
+        const center = map_78596262bc831acf7a76006709329e65.getCenter();
+        const zoom = map_78596262bc831acf7a76006709329e65.getZoom();
+        localStorage.setItem('mapCenter', JSON.stringify([center.lat, center.lng]));
+        localStorage.setItem('mapZoom', zoom);
+    });
     
-        var popup_8934c67efb0b228e7054addf6d0861d6 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_fc1b67e420d8daddfd6a7eea54abf280 = $(`<div id="html_fc1b67e420d8daddfd6a7eea54abf280" style="width: 100.0%; height: 100.0%;">37.2791</div>`)[0];
-                popup_8934c67efb0b228e7054addf6d0861d6.setContent(html_fc1b67e420d8daddfd6a7eea54abf280);
-            
-        
-
-        marker_c14916f302e215ad27d5b0ec9524fe62.bindPopup(popup_8934c67efb0b228e7054addf6d0861d6)
-        ;
-
-        
+    // Restore map position from localStorage if available
+    const savedCenter = localStorage.getItem('mapCenter');
+    const savedZoom = localStorage.getItem('mapZoom');
+    if (savedCenter && savedZoom) {
+        map_78596262bc831acf7a76006709329e65.setView(
+            JSON.parse(savedCenter), 
+            parseInt(savedZoom)
+        );
+    }
     
-    
-                marker_c14916f302e215ad27d5b0ec9524fe62.setIcon(icon_8201bb4d6f9bfcdebfd5ef682a509ce2);
-            
-    
-            var poly_line_3904426c3335f2a07dcf47f4ac7dd559 = L.polyline(
-                [[37.2791, 26.9819], [50.033333, 8.570556]],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(map_78596262bc831acf7a76006709329e65);
-        
-
     // WebSocket connection
     const ws = new WebSocket(`ws://${window.location.host}/ws`);
-
+    
+    ws.onopen = function() {
+        console.log("WebSocket connection established");
+    };
+    
     ws.onmessage = function(event) {
         const data = JSON.parse(event.data);
+        console.log("WebSocket message received:", data);
         
-        // Update plane marker position
-        const newLat = data.coordinates.latitude;
-        const newLng = data.coordinates.longitude;
-        marker_c14916f302e215ad27d5b0ec9524fe62.setLatLng([newLat, newLng]);
-        
-        // Update plane marker popup with flight info
-        marker_c14916f302e215ad27d5b0ec9524fe62.bindPopup(JSON.stringify(data.flight_info));
-        
-        // Update flight path
-        const airportLatLng = [37.2791, 26.9819];
-        const planeLatLng = [newLat, newLng];
-        poly_line_3904426c3335f2a07dcf47f4ac7dd559.setLatLngs([airportLatLng, planeLatLng]);
-        
-        // Center map on plane
-        map_78596262bc831acf7a76006709329e65.setView([newLat, newLng]);
+        // Data is now directly the flight information
+        updateFlightMarker(data);
     };
+    
+    function updateFlightMarker(data) {
+        console.log("Received data:", data);
+        
+        const coords = data.coordinates;
+        const info = data.flight_info;
+        
+        // Continue even if we have errors in the data
+        if (info && typeof info === 'object' && info.Error) {
+            console.log("API error received:", info.Error);
+            // Continue with the last valid coordinates
+        }
+        
+        // Check if we have valid coordinates
+        if (coords && coords.latitude !== undefined && coords.longitude !== undefined) {
+            const latLng = [coords.latitude, coords.longitude];
+            
+            // Remove old marker and polyline if they exist
+            if (flightMarker) {
+                map_78596262bc831acf7a76006709329e65.removeLayer(flightMarker);
+            }
+            if (flightPolyline) {
+                map_78596262bc831acf7a76006709329e65.removeLayer(flightPolyline);
+            }
+            
+            // Create marker
+            flightMarker = L.marker(latLng, { icon: planeIcon }).addTo(map_78596262bc831acf7a76006709329e65);
+            
+            // Use icao24 from info if available, otherwise use stored value
+            const icao24 = (info && info.icao24) ? info.icao24 : currentIcao24;
+            const altitude = (info && info.Baro_Altitude) ? info.Baro_Altitude : 'N/A';
+            
+            flightMarker.bindPopup(`Flight: ${icao24}<br>Altitude: ${altitude} m`);
+            
+            // Create polyline between plane and Frankfurt Airport
+            const airportCoords = [50.033333, 8.570556]; // Frankfurt Airport coordinates
+            flightPolyline = L.polyline([latLng, airportCoords], {
+                color: 'red',
+                weight: 2,
+                opacity: 0.8
+            }).addTo(map_78596262bc831acf7a76006709329e65);
+            
+            // Update current flight display
+            document.getElementById('current-flight').innerHTML = `
+                <div class="tracking-active">
+                    <div>ICAO24: ${icao24}</div>
+                    <div>Latitude: ${coords.latitude}</div>
+                    <div>Longitude: ${coords.longitude}</div>
+                    <div>Altitude: ${altitude} m</div>
+                    <div>Last updated: ${new Date().toLocaleTimeString()}</div>
+                    <div>Refresh rate: 30 seconds</div>
+                    <button id="center-flight-btn" style="margin-top: 10px;">Center on Flight</button>
+                </div>
+            `;
+            
+            // Only set the view to the flight on the FIRST load, not on updates
+            if (firstLoad) {
+                map_78596262bc831acf7a76006709329e65.setView(latLng, 6);
+                firstLoad = false;
+            }
+        }
+    }
+    
+    // Add event listener to the button
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.id === 'center-flight-btn') {
+            if (flightMarker) {
+                map_78596262bc831acf7a76006709329e65.setView(flightMarker.getLatLng(), 6);
+            }
+        }
+    });
+    
+    // Search for flights at an airport
+    document.getElementById('search-button').addEventListener('click', function() {
+        const airportCode = document.getElementById('airport-input').value.trim().toUpperCase();
+        if (!airportCode) return;
+        
+        // Show loading indicator
+        const flightsContainer = document.getElementById('flights-container');
+        flightsContainer.innerHTML = 'Loading...';
+        document.getElementById('search-results').style.display = 'block';
+        
+        // Fetch flights for the airport
+        fetch(`/flights/${airportCode}`)
+            .then(response => response.json())
+            .then(data => {
+                flightsContainer.innerHTML = '';
+                
+                if (data.error) {
+                    flightsContainer.innerHTML = `<div class="error">${data.error}</div>`;
+                    return;
+                }
+                
+                if (!data.flights || data.flights.length === 0) {
+                    flightsContainer.innerHTML = `<div>No flights found for ${airportCode}</div>`;
+                    return;
+                }
+                
+                // Create list of flights
+                data.flights.forEach(flight => {
+                    const flightDiv = document.createElement('div');
+                    flightDiv.classList.add('flight-item');
+                    flightDiv.innerHTML = `
+                        <div>${flight.info}</div>
+                        <button class="track-this-btn" data-icao24="${flight.icao24}">Track</button>
+                    `;
+                    flightsContainer.appendChild(flightDiv);
+                });
+                
+                // Add event listeners to track buttons
+                document.querySelectorAll('.track-this-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const icao24 = this.getAttribute('data-icao24');
+                        trackFlight(icao24);
+                    });
+                });
+            })
+            .catch(error => {
+                flightsContainer.innerHTML = `<div class="error">Error: ${error.message}</div>`;
+            });
+    });
+    
+    // Track a flight by ICAO24 code
+    document.getElementById('track-button').addEventListener('click', function() {
+        const icao24 = document.getElementById('track-input').value.trim().toLowerCase();
+        if (!icao24) return;
+        trackFlight(icao24);
+    });
+    
+    function trackFlight(icao24) {
+        currentIcao24 = icao24;
+        ws.send(JSON.stringify({
+            action: 'track',
+            icao24: icao24
+        }));
+        document.getElementById('track-input').value = '';
+    }
 
-    ws.onerror = function(error) {
-        console.error('WebSocket error:', error);
-    };
-
-    ws.onclose = function() {
-        console.log('WebSocket connection closed');
-    };
 </script>
 </html>
