@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <title>Secure Flight Tracker</title>
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+
+                /* container for the top-right boxes */
+                #controls-container {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    z-index: 1000; /* Ensure controls are above the map */
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px; /* Space between the boxes */
+                }
+
+                /* common style for input boxes */
+                .input-box {
+                    background-color: rgba(255, 255, 255, 0.85); /* slightly more opaque */
+                    padding: 15px;
+                    border-radius: 8px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* slightly stronger shadow */
+                    width: 350px; /* set a fixed width */
+                    font-family: sans-serif;
+                }
+
+                .input-box h4 {
+                    margin-top: 0;
+                    margin-bottom: 10px;
+                    font-size: 16px;
+                    font-weight: bold;
+                    color: #333;
+                }
+
+                .input-box label {
+                    display: block;
+                    margin-bottom: 5px;
+                    font-weight: bold;
+                    font-size: 14px;
+                }
+
+                .input-box input[type="text"] {
+                    width: calc(100% - 22px); /* Adjust for padding/border */
+                    padding: 8px 10px;
+                    margin-bottom: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 4px;
+                    box-sizing: border-box;
+                    font-size: 14px;
+                }
+
+                .input-box button {
+                    padding: 8px 15px;
+                    background-color: #007bff; /* Bootstrap primary blue */
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    transition: background-color 0.2s;
+                }
+
+                .input-box button:hover {
+                    background-color: #0056b3;
+                }
+
+                /* flight list specific styles */
+                #flight-list-box {
+                    max-height: 40vh; /* Limit height and allow scrolling */
+                    overflow-y: auto;
+                }
+
+                #flight-list-details {
+                    list-style-type: none;
+                    padding: 0;
+                    margin: 0;
+                }
+                
+                #flight-list-details h5 {
+                    margin-top: 15px;
+                    margin-bottom: 5px;
+                    font-size: 15px;
+                    font-weight: bold;
+                    color: #555;
+                }
+
+                #flight-list-details ul {
+                    list-style-type: none;
+                    padding-left: 0; /* Remove default padding */
+                    margin: 0;
+                    max-height: 15vh;
+                    overflow-y: auto;
+                    font-size: 13px;
+                }
+
+                #flight-list-details li {
+                    padding: 5px 0;
+                    border-bottom: 1px solid #eee;
+                    cursor: pointer;
+                }
+                
+                #flight-list-details li:last-child {
+                     border-bottom: none;
+                }
+
+                #flight-list-details li:hover {
+                    background-color: #f0f0f0;
+                }
+
+                .flight-icao {
+                    font-weight: bold;
+                    color: #2196F3;
+                    display: inline-block;
+                    min-width: 60px; /* Ensure alignment */
+                    margin-right: 5px;
+                }
+
+                #error-message {
+                    color: red;
+                    font-size: 12px;
+                    margin-top: 10px;
+                }
+
+            </style>
+        
+</head>
+<body>
+    
+    <div class="folium-map" id="map"></div>
+    
+    <!-- container for input boxes -->
+    <div id="controls-container">
+        <!-- Box 1: Airport Input -->
+        <div id="airport-input-box" class="input-box">
+            <h4>Airport Information</h4>
+            <label for="airport-input">Enter Airport ICAO:</label>
+            <input type="text" id="airport-input" placeholder="e.g., EDDF" maxlength="4">
+            <button id="airport-submit">Update Airport & Flights</button>
+        </div>
+
+        <!-- Box 2: Flight List -->
+        <div id="flight-list-box" class="input-box">
+            <h4 id="flight-list-title">Flights for {{ AirportICAO }}</h4>
+            <div id="flight-list-details">
+                 <h5>Departures:</h5>
+                 <ul id="departures-list"><li>Loading...</li></ul>
+                 <h5>Arrivals:</h5>
+                 <ul id="arrivals-list"><li>Loading...</li></ul>
+                 <div id="flight-error-message" style="color: red; font-size: 12px; margin-top: 5px;"></div>
+            </div>
+            <p><small>Click on a flight ICAO to track it.</small></p>
+        </div>
+
+        <!-- Box 3: Track Flight Input -->
+        <div id="tracking-input-box" class="input-box">
+            <h4>Track Flight</h4>
+            <label for="icao24-input">Enter Airplane ICAO24:</label>
+            <input type="text" id="icao24-input" placeholder="e.g., 3c6637" maxlength="6">
+            <button id="track-button">Track Flight</button>
+        </div>
+    </div>
+
+    <!-- Error Display Area (Optional, could be integrated elsewhere) -->
+    <div id="error-message"></div> 
+        
+</body>
+<script>
+    // --- Map Initialization ---
+    const initialAirportLat = Number("{{ AirportLat }}");
+    const initialAirportLon = Number("{{ AirportLong }}");
+    const initialAirportICAO = "{{ AirportICAO }}";
+    
+    var map = L.map(
+        "map",
+        {
+            center: [initialAirportLat, initialAirportLon],
+            crs: L.CRS.EPSG3857,
+            zoom: 8, // slightly more zoomed in
+            zoomControl: true,
+            preferCanvas: false,
+        }
+    );
+    
+    var tileLayer = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            minZoom: 0,
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            noWrap: false,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            subdomains: "abc",
+            detectRetina: false,
+            tms: false,
+            opacity: 1,
+        }
+    );
+        
+    tileLayer.addTo(map);
+    
+    // --- Markers and Path ---
+    // # plane marker (initially hidden or at a default spot)
+    var planeIcon = L.AwesomeMarkers.icon({
+        markerColor: "blue",
+        iconColor: "white",
+        icon: "plane",
+        prefix: "fa", // use font awesome prefix
+        extraClasses: "fa-rotate-0" // can be updated dynamically
+    });
+        
+    var planeMarker = L.marker([0, 0], {icon: planeIcon}); // Start hidden
+    planeMarker.bindPopup("Tracking...");
+    var planeMarkerAdded = false; // track if marker is on map
+
+    // # airport marker
+    var airportIcon = L.AwesomeMarkers.icon({
+        markerColor: "red",
+        iconColor: "white",
+        icon: "flag",
+        prefix: "glyphicon"
+    });
+    
+    var airportMarker = L.marker(
+        [initialAirportLat, initialAirportLon],
+        {icon: airportIcon}
+    ).addTo(map);
+    
+    airportMarker.bindPopup(`Airport: ${initialAirportICAO}`);
+            
+    // # flight path (initially hidden)
+    var flightPath = L.polyline([], {
+        color: "#FF4500", 
+        weight: 3,
+        opacity: 0.8,
+        dashArray: "5, 5"
+    });
+    var flightPathAdded = false; // track if path is on map
+
+    // --- DOM Elements ---
+    const airportInput = document.getElementById('airport-input');
+    const airportSubmit = document.getElementById('airport-submit');
+    const flightListTitle = document.getElementById('flight-list-title');
+    const departuresList = document.getElementById('departures-list');
+    const arrivalsList = document.getElementById('arrivals-list');
+    const flightErrorMsg = document.getElementById('flight-error-message');
+    const icaoInput = document.getElementById('icao24-input');
+    const trackButton = document.getElementById('track-button');
+    const errorDisplay = document.getElementById('error-message');
+
+    // Set initial input value
+    airportInput.value = initialAirportICAO;
+    
+    // --- WebSocket Connection ---
+    const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${wsProtocol}//${window.location.host}/ws`);
+    
+    ws.onopen = function() {
+        console.log("WebSocket connected.");
+        // # Initial state is now sent by the server upon connection
+    };
+
+    ws.onmessage = function(event) {
+        console.log("Message received:", event.data);
+        const data = JSON.parse(event.data);
+        
+        try {
+            switch (data.type) {
+                case "initial_state":
+                    handleInitialState(data);
+                    break;
+                case "airport_update":
+                    handleAirportUpdate(data);
+                    break;
+                case "plane_update":
+                    handlePlaneUpdate(data);
+                    break;
+                case "error":
+                    handleError(data.message);
+                    break;
+                default:
+                    console.log("Unknown message type:", data.type);
+            }
+        } catch (e) {
+            console.error("Error processing message:", e);
+            handleError("Error processing message from server.");
+        }
+    };
+
+    ws.onerror = function(error) {
+        console.error('WebSocket error:', error);
+        handleError("WebSocket connection error. Please refresh the page.");
+    };
+
+    ws.onclose = function() {
+        console.log('WebSocket connection closed');
+        handleError("WebSocket connection closed. Please refresh the page.");
+    };
+
+    // --- Event Listeners ---
+    airportSubmit.addEventListener('click', updateAirport);
+    airportInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') updateAirport();
+    });
+
+    trackButton.addEventListener('click', trackFlight);
+    icaoInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') trackFlight();
+    });
+    
+    // # delegate clicks on flight lists to handle ICAO selection
+    departuresList.addEventListener('click', handleFlightListClick);
+    arrivalsList.addEventListener('click', handleFlightListClick);
+
+    // --- Functions ---
+    function handleInitialState(data) {
+        console.log("Handling initial state:", data);
+        // # update airport marker and map view (already done by template? verify)
+        const airportCoords = data.airport_coordinates;
+        const airportICAO = data.airport_icao;
+        map.setView([airportCoords.latitude, airportCoords.longitude], 8);
+        airportMarker.setLatLng([airportCoords.latitude, airportCoords.longitude]);
+        airportMarker.bindPopup(`Airport: ${airportICAO}`);
+        airportInput.value = airportICAO;
+        flightListTitle.textContent = `Flights for ${airportICAO}`;
+
+        // # display initial flights
+        displayFlights(data.flights);
+
+        // # if a flight was already being tracked, update input and marker
+        if (data.tracked_icao24) {
+            icaoInput.value = data.tracked_icao24;
+            // # we need plane coords to show marker, wait for first plane_update
+        }
+    }
+
+    function handleAirportUpdate(data) {
+        console.log("Handling airport update:", data);
+        const airportICAO = data.airport_icao;
+        const coords = data.coordinates;
+        
+        // # update map view and airport marker
+        map.setView([coords.latitude, coords.longitude], 8);
+        airportMarker.setLatLng([coords.latitude, coords.longitude]);
+        airportMarker.bindPopup(`Airport: ${airportICAO}`);
+        airportInput.value = airportICAO; // # sync input field
+        flightListTitle.textContent = `Flights for ${airportICAO}`;
+        
+        // # display new flights
+        displayFlights(data.flights);
+        
+        // # clear plane marker and path if airport changes?
+        // clearPlaneTracking(); 
+    }
+
+    function handlePlaneUpdate(data) {
+         console.log("Handling plane update:", data);
+         const coords = data.coordinates;
+         const flightInfo = data.flight_info;
+
+         if (coords && typeof coords.latitude === 'number' && typeof coords.longitude === 'number') {
+             const newLatLng = [coords.latitude, coords.longitude];
+             
+             // # add or update plane marker
+             if (!planeMarkerAdded) {
+                 planeMarker.addTo(map);
+                 planeMarkerAdded = true;
+             } 
+             planeMarker.setLatLng(newLatLng);
+             planeMarker.bindPopup(createPopupContent(flightInfo));
+
+             // # update flight path
+             const airportLatLng = airportMarker.getLatLng();
+             if (!flightPathAdded) {
+                 flightPath.addTo(map);
+                 flightPathAdded = true;
+             }
+             flightPath.setLatLngs([newLatLng, [airportLatLng.lat, airportLatLng.lng]]);
+
+             // # optionally center map on plane
+             // map.setView(newLatLng);
+         } else {
+            console.warn("Received plane update with invalid coordinates:", data);
+            // # maybe remove marker if coords are invalid? 
+            // clearPlaneTracking();
+         }
+    }
+    
+    function createPopupContent(info) {
+        // # format flight info for the popup
+        let content = `<b>ICAO24:</b> ${info.icao24}<br>`;
+        if (info.Latitude) content += `<b>Lat:</b> ${info.Latitude.toFixed(4)}<br>`;
+        if (info.Longitude) content += `<b>Lon:</b> ${info.Longitude.toFixed(4)}<br>`;
+        if (info.Baro_Altitude) content += `<b>Altitude:</b> ${info.Baro_Altitude} m<br>`;
+        if (info.Grounded !== undefined) content += `<b>Grounded:</b> ${info.Grounded}<br>`;
+        // # add more fields if needed
+        return content;
+    }
+
+    function handleError(message) {
+        console.error("Error:", message);
+        errorDisplay.textContent = message;
+        // # clear error after a delay?
+        // setTimeout(() => { errorDisplay.textContent = ''; }, 5000);
+    }
+
+    function updateAirport() {
+        const airportCode = airportInput.value.trim().toUpperCase();
+        clearError(); // # clear previous errors
+        if (airportCode.length === 4) {
+            console.log("Requesting airport update:", airportCode);
+            ws.send(JSON.stringify({
+                action: 'update_airport',
+                airport_code: airportCode
+            }));
+        } else {
+            handleError("Please enter a valid 4-letter ICAO code.");
+        }
+    }
+    
+    function trackFlight() {
+        const icao24 = icaoInput.value.trim().toLowerCase();
+        clearError();
+        if (icao24.length >= 3 && icao24.length <= 6) { // basic validation
+            console.log("Requesting flight track:", icao24);
+            // clearPlaneTracking(); // Clear previous track immediately
+            ws.send(JSON.stringify({
+                action: 'track_flight',
+                icao24: icao24
+            }));
+        } else {
+            handleError("Please enter a valid ICAO24 code (3-6 hex chars).");
+        }
+    }
+    
+    function displayFlights(flightData) {
+        departuresList.innerHTML = ''; // Clear previous
+        arrivalsList.innerHTML = '';   // Clear previous
+        flightErrorMsg.textContent = ''; // Clear previous errors
+
+        if (flightData.error) {
+            flightErrorMsg.textContent = `Error fetching flights: ${flightData.error}`;
+            console.error("Flight fetch error:", flightData.error);
+        }
+
+        if (flightData.departures && flightData.departures.length > 0) {
+            flightData.departures.forEach(flightStr => {
+                 const li = createFlightListItem(flightStr);
+                 if (li) departuresList.appendChild(li);
+            });
+        } else {
+            departuresList.innerHTML = '<li>No recent departures found.</li>';
+        }
+
+        if (flightData.arrivals && flightData.arrivals.length > 0) {
+            flightData.arrivals.forEach(flightStr => {
+                 const li = createFlightListItem(flightStr);
+                 if (li) arrivalsList.appendChild(li);
+            });
+        } else {
+            arrivalsList.innerHTML = '<li>No recent arrivals found.</li>';
+        }
+    }
+    
+    function createFlightListItem(flightString) {
+        // # extract ICAO24 from strings like "icao24 → DEST (Time)" or "icao24 ← ORIG (Time)"
+        const match = flightString.match(/^([a-fA-F0-9]{3,6})\b/);
+        if (!match) return null; // Skip if no ICAO found
+        
+        const icao24 = match[1].toLowerCase();
+        const displayInfo = flightString.substring(icao24.length).trim(); // Get the rest of the string
+        
+        const li = document.createElement('li');
+        li.setAttribute('data-icao24', icao24);
+        li.innerHTML = `<span class="flight-icao">${icao24}</span> ${displayInfo}`;
+        return li;
+    }
+    
+    function handleFlightListClick(e) {
+        const listItem = e.target.closest('li[data-icao24]'); // Find the parent LI with data-icao24
+        if (listItem) {
+            const icao24 = listItem.getAttribute('data-icao24');
+            if (icao24) {
+                icaoInput.value = icao24; // Set the input field
+                trackFlight(); // Automatically track the selected flight
+            }
+        }
+    }
+    
+    function clearPlaneTracking() {
+        // # remove plane marker and path from map
+         if (planeMarkerAdded) {
+            map.removeLayer(planeMarker);
+            planeMarkerAdded = false;
+         }
+         if (flightPathAdded) {
+            map.removeLayer(flightPath);
+            flightPathAdded = false;
+         }
+         flightPath.setLatLngs([]); // Clear path coordinates
+    }
+
+    function clearError() {
+        errorDisplay.textContent = '';
+        flightErrorMsg.textContent = '';
+    }
+
+</script>
+</html>
