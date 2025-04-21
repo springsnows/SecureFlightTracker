@@ -1,6 +1,7 @@
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI, WebSocket, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse
 from src.api import fetch_flights
 from src.tracker import flight_details, get_coordinates
 import asyncio
@@ -8,7 +9,7 @@ import json
 
 app = FastAPI()
 
-# Enable CORS
+# enable CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -17,8 +18,35 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Store active WebSocket connections
+# store active websocket connections
 active_connections = set()
+
+# Placeholder variables for coordinates - WILL BE REPLACED LATER
+# Airport coordinates
+AIRPORT_LAT = 50.026421
+AIRPORT_LONG = 8.543125
+
+# Plane coordinates
+PLANE_LAT = 50.0016
+PLANE_LONG = 8.3464
+
+# flight to track - will be replaced by user input later
+ICAO24_CODE = "44ce79"
+
+# serve world_map.html with template variables
+@app.get("/")
+async def root():
+    # Read the HTML file
+    with open("world_map.html", "r") as file:
+        html_content = file.read()
+    
+    # Replace placeholder variables with actual values
+    html_content = html_content.replace("{{ Latitude }}", str(PLANE_LAT))
+    html_content = html_content.replace("{{ Longitude }}", str(PLANE_LONG))
+    html_content = html_content.replace("{{ AirportLat }}", str(AIRPORT_LAT))
+    html_content = html_content.replace("{{ AirportLong }}", str(AIRPORT_LONG))
+    
+    return HTMLResponse(html_content)
 
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -26,12 +54,11 @@ async def websocket_endpoint(websocket: WebSocket):
     active_connections.add(websocket)
     try:
         while True:
-            # Fetch flight data
-            ICAO24_CODE = "3c64aa"
+            # fetch flight data
             info = flight_details(ICAO24_CODE)
             latitude, longitude = get_coordinates()
             
-            # Prepare data to send
+            # prepare data to send
             data = {
                 "flight_info": info,
                 "coordinates": {
@@ -40,11 +67,11 @@ async def websocket_endpoint(websocket: WebSocket):
                 }
             }
             
-            # Send to all connected clients
+            # send to all connected clients
             for connection in active_connections:
                 await connection.send_json(data)
             
-            # Wait before next update
+            # wait before next update
             await asyncio.sleep(10)
     except Exception as e:
         print(f"Error: {e}")
@@ -52,4 +79,4 @@ async def websocket_endpoint(websocket: WebSocket):
         active_connections.remove(websocket)
 
 # Mount static files
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+app.mount("/static", StaticFiles(directory="."), name="static")

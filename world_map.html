@@ -43,126 +43,81 @@
         
 </body>
 <script>
+    // Get initial coordinates from template variables
+    // These will be populated by the server at runtime
+    const initialLatitude = Number("{{ Latitude }}");
+    const initialLongitude = Number("{{ Longitude }}");
+    const airportLatitude = Number("{{ AirportLat }}");
+    const airportLongitude = Number("{{ AirportLong }}");
     
-    
-            var map_78596262bc831acf7a76006709329e65 = L.map(
-                "map_78596262bc831acf7a76006709329e65",
-                {
-                    center: [50.0, 10.0],
-                    crs: L.CRS.EPSG3857,
-                    ...{
-  "zoom": 5,
-  "zoomControl": true,
-  "preferCanvas": false,
-}
-
-                }
-            );
-
+    var map_78596262bc831acf7a76006709329e65 = L.map(
+        "map_78596262bc831acf7a76006709329e65",
+        {
+            center: [airportLatitude, airportLongitude],
+            crs: L.CRS.EPSG3857,
+            zoom: 5,
+            zoomControl: true,
+            preferCanvas: false
+        }
+    );
             
-
+    var tile_layer_0da3eee34d6f701c2dc2e0e1d2da9e60 = L.tileLayer(
+        "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+            minZoom: 0,
+            maxZoom: 19,
+            maxNativeZoom: 19,
+            noWrap: false,
+            attribution: "&copy; <a href=\"https://www.openstreetmap.org/copyright\">OpenStreetMap</a> contributors",
+            subdomains: "abc",
+            detectRetina: false,
+            tms: false,
+            opacity: 1
+        }
+    );
         
+    tile_layer_0da3eee34d6f701c2dc2e0e1d2da9e60.addTo(map_78596262bc831acf7a76006709329e65);
     
-            var tile_layer_0da3eee34d6f701c2dc2e0e1d2da9e60 = L.tileLayer(
-                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-                {
-  "minZoom": 0,
-  "maxZoom": 19,
-  "maxNativeZoom": 19,
-  "noWrap": false,
-  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
-  "subdomains": "abc",
-  "detectRetina": false,
-  "tms": false,
-  "opacity": 1,
-}
-
-            );
+    // Create plane marker
+    var planeIcon = L.AwesomeMarkers.icon({
+        markerColor: "blue",
+        iconColor: "white",
+        icon: "plane",
+        prefix: "glyphicon",
+        extraClasses: "fa-rotate-0"
+    });
         
+    var planeMarker = L.marker(
+        [initialLatitude, initialLongitude],
+        {icon: planeIcon}
+    ).addTo(map_78596262bc831acf7a76006709329e65);
     
-            tile_layer_0da3eee34d6f701c2dc2e0e1d2da9e60.addTo(map_78596262bc831acf7a76006709329e65);
-        
+    planeMarker.bindPopup("Flight");
     
-            var marker_8e76116800494a56c5347c581e8c42d0 = L.marker(
-                [50.033333, 8.570556],
-                {
-}
-            ).addTo(map_78596262bc831acf7a76006709329e65);
-        
+    // Create airport marker
+    var airportIcon = L.AwesomeMarkers.icon({
+        markerColor: "red",
+        iconColor: "white",
+        icon: "flag",
+        prefix: "glyphicon"
+    });
     
-            var icon_96c0c961feae43ec46d368623a268bec = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "plane",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
+    var airportMarker = L.marker(
+        [airportLatitude, airportLongitude],
+        {icon: airportIcon}
+    ).addTo(map_78596262bc831acf7a76006709329e65);
     
-        var popup_a4d55cf9af941b147d36ff38eab2b476 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
+    airportMarker.bindPopup("Airport");
             
-                var html_55f4f74c214f58a4a6298618b21a1456 = $(`<div id="html_55f4f74c214f58a4a6298618b21a1456" style="width: 100.0%; height: 100.0%;">Frankfurt Airport</div>`)[0];
-                popup_a4d55cf9af941b147d36ff38eab2b476.setContent(html_55f4f74c214f58a4a6298618b21a1456);
-            
-        
-
-        marker_8e76116800494a56c5347c581e8c42d0.bindPopup(popup_a4d55cf9af941b147d36ff38eab2b476)
-        ;
-
-        
-    
-    
-                marker_8e76116800494a56c5347c581e8c42d0.setIcon(icon_96c0c961feae43ec46d368623a268bec);
-            
-    
-            var marker_c14916f302e215ad27d5b0ec9524fe62 = L.marker(
-                [37.2791, 26.9819],
-                {
-}
-            ).addTo(map_78596262bc831acf7a76006709329e65);
-        
-    
-            var icon_8201bb4d6f9bfcdebfd5ef682a509ce2 = L.AwesomeMarkers.icon(
-                {
-  "markerColor": "blue",
-  "iconColor": "white",
-  "icon": "plane",
-  "prefix": "glyphicon",
-  "extraClasses": "fa-rotate-0",
-}
-            );
-        
-    
-        var popup_8934c67efb0b228e7054addf6d0861d6 = L.popup({
-  "maxWidth": "100%",
-});
-
-        
-            
-                var html_fc1b67e420d8daddfd6a7eea54abf280 = $(`<div id="html_fc1b67e420d8daddfd6a7eea54abf280" style="width: 100.0%; height: 100.0%;">37.2791</div>`)[0];
-                popup_8934c67efb0b228e7054addf6d0861d6.setContent(html_fc1b67e420d8daddfd6a7eea54abf280);
-            
-        
-
-        marker_c14916f302e215ad27d5b0ec9524fe62.bindPopup(popup_8934c67efb0b228e7054addf6d0861d6)
-        ;
-
-        
-    
-    
-                marker_c14916f302e215ad27d5b0ec9524fe62.setIcon(icon_8201bb4d6f9bfcdebfd5ef682a509ce2);
-            
-    
-            var poly_line_3904426c3335f2a07dcf47f4ac7dd559 = L.polyline(
-                [[37.2791, 26.9819], [50.033333, 8.570556]],
-                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": false, "fillColor": "red", "fillOpacity": 0.2, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "noClip": false, "opacity": 0.8, "smoothFactor": 1.0, "stroke": true, "weight": 2}
-            ).addTo(map_78596262bc831acf7a76006709329e65);
+    // Create flight path
+    var flightPath = L.polyline(
+        [[initialLatitude, initialLongitude], [airportLatitude, airportLongitude]],
+        {
+            color: "red",
+            weight: 2,
+            opacity: 0.8
+        }
+    ).addTo(map_78596262bc831acf7a76006709329e65);
         
 
     // WebSocket connection
@@ -174,15 +129,13 @@
         // Update plane marker position
         const newLat = data.coordinates.latitude;
         const newLng = data.coordinates.longitude;
-        marker_c14916f302e215ad27d5b0ec9524fe62.setLatLng([newLat, newLng]);
+        planeMarker.setLatLng([newLat, newLng]);
         
         // Update plane marker popup with flight info
-        marker_c14916f302e215ad27d5b0ec9524fe62.bindPopup(JSON.stringify(data.flight_info));
+        planeMarker.bindPopup(JSON.stringify(data.flight_info));
         
         // Update flight path
-        const airportLatLng = [37.2791, 26.9819];
-        const planeLatLng = [newLat, newLng];
-        poly_line_3904426c3335f2a07dcf47f4ac7dd559.setLatLngs([airportLatLng, planeLatLng]);
+        flightPath.setLatLngs([[newLat, newLng], [airportLatitude, airportLongitude]]);
         
         // Center map on plane
         map_78596262bc831acf7a76006709329e65.setView([newLat, newLng]);
