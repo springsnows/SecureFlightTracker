@@ -7,9 +7,22 @@ In Proceedings of the 13th IEEE/ACM International Symposium on Information Proce
 
 
 # HOW TO RUN
-Download all files. 
-Select SecureFlightTracker folder location in terminal e.g. cd "C:\Users\your_name\Documents\GitHub\SecureFlightTracker"
-Run the following command:
-uvicorn app:app --reload
-The app will be running at http://127.0.0.1:8000
-Open the link inside your web browser
+
+1. Download all files.
+
+2. Open your terminal and navigate to the project folder:
+
+   ```bash
+   cd "C:\Users\your_name\Documents\GitHub\SecureFlightTracker"
+   ```
+
+3. Run the following command:
+
+   ```bash
+   uvicorn app:app --reload
+   ```
+
+4. The app will be running at:  
+   [http://127.0.0.1:8000](http://127.0.0.1:8000)
+
+5. Open the link in your web browser.
