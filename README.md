@@ -18,7 +18,8 @@ In Proceedings of the 13th IEEE/ACM International Symposium on Information Proce
 
 3. Install all required dependencies:
 
-   ```pip install -r requirements.txt
+   ```bash
+   pip install -r requirements.txt
    ```
 
 4. Run the following command:
