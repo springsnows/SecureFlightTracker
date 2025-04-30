@@ -16,13 +16,18 @@ In Proceedings of the 13th IEEE/ACM International Symposium on Information Proce
    cd "C:\Users\your_name\Documents\GitHub\SecureFlightTracker"
    ```
 
-3. Run the following command:
+3. Install all required dependencies:
+
+   ```pip install -r requirements.txt
+   ```
+
+4. Run the following command:
 
    ```bash
    uvicorn app:app --reload
    ```
 
-4. The app will be running at:  
+5. The app will be running at:  
    [http://127.0.0.1:8000](http://127.0.0.1:8000)
 
-5. Open the link in your web browser.
+6. Open the link in your web browser.

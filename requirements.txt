@@ -1,5 +1,5 @@
 requests
-time
+folium
 pyttsx3
 cryptography
 fastapi==0.104.1
